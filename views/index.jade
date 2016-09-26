@@ -1,0 +1,29 @@
+doctype html
+html(lang='en')
+  head
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')
+    script(src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='public/javascripts/chatapplication.js')
+    link(rel='stylesheet', type='text/css', href='public/stylesheets/style.css')
+    link(rel='stylesheet', type='text/css', href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+  body
+    .container
+      h2 My Chat Box
+      br
+      .row
+        .col-sm-3
+        .col-sm-6
+          p#welcome
+          p#people
+          form
+            
+              .form-group
+                input#name.form-control(type='name', placeholder='Enter your name', style='width : 100%')
+              .form-group
+                input#message.form-control(type='message', placeholder='type here....', style='display : none; width : 100%')
+            
+              button#join.btn.btn-default( style='width : 100%') Submit
+              button#msgbtn.btn.btn-default( style='width : 100%') Send
+          #chat
+        .col-sm-3

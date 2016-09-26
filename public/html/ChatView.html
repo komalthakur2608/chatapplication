@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="public/javascripts/chatapplication.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css">
+	<script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+	<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.pink-light_blue.min.css" />
+	<link rel="stylesheet" href="../stylesheets/ChatView.css" />
+</head>
+<body>
+	<dialog class="mdl-dialog">
+	    <div class="mdl-dialog__content">
+		    <div class="mdl-textfield mdl-js-textfield">
+		    	<input class="mdl-textfield__input" type="text" id="name" placeholder="Enter your name.."><br>
+		    	<input class="mdl-textfield__input" type="text" id="password" placeholder="Enter your password.."><br>
+		    	<input class="mdl-textfield__input" type="number" id="phone" placeholder="Enter your phone .."><br>
+		    	<input class="mdl-textfield__input" type="text" id="email" placeholder="Enter your email..">
+	  		</div>
+	    </div>
+	    <div class="mdl-dialog__actions">
+	      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent close" id=join style="width : 100%">Submit</button>
+	    </div>
+	</dialog>
+
+	<h4 id=welcome> Welcome Komal <h4>
+
+	<form action="#">
+	  	<div class="mdl-textfield mdl-js-textfield" style="width : 90%; margin : 10px">
+		    <input class="mdl-textfield__input" type="text" id="message" placeholder="Type here">
+	 	</div>
+		<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" id = "msgBtn" style="margin : 10px ">
+			<i class="material-icons">send</i>
+		</button>
+	</form>
+
+	<div id = people-in-chat >
+		<span class="mdl-chip">
+    		<span class="mdl-chip__text">Basic Chip</span> 
+		</span>
+	</div>
+
+	<div class="wide-card mdl-card mdl-shadow--2dp" id= chat>
+        <div class="mdl-card__supporting-text"  >
+           Hi
+        </div>
+    </div>
+</body>
+</html>

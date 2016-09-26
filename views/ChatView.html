@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css">
+	<script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+	<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.pink-light_blue.min.css" />
+	<link rel="stylesheet" href="../stylesheets/ChatView.css" />
+</head>
+<body>
+	<dialog class="mdl-dialog" id=registerModal>
+	    <div class="mdl-dialog__content">
+	    	<h5> Register </h5>
+		    <div class="mdl-textfield mdl-js-textfield">
+		    	<input class="mdl-textfield__input" type="text" id="name" placeholder="Enter your name.."><br>
+		    	<input class="mdl-textfield__input" type="text" id="password" placeholder="Enter your password.."><br>
+		    	<input class="mdl-textfield__input" type="number" id="phone" placeholder="Enter your phone .."><br>
+		    	<input class="mdl-textfield__input" type="text" id="email" placeholder="Enter your email..">
+	  		</div>
+	    </div>
+	    <div class="mdl-dialog__actions">
+	      <button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent close" id=join style="width : 100%">Submit</button>
+	    </div>
+	</dialog>
+
+	<dialog class="mdl-dialog" id = "onlinePeopleModal">
+	    <div class="mdl-dialog__content">
+	    	<h5> Available people </h5>
+		    <div class="mdl-textfield mdl-js-textfield">
+		    	<ul class="demo-list-item mdl-list" id = onlineList>
+				</ul>
+	  		</div>
+	    </div>
+	</dialog>
+
+	<dialog class="mdl-dialog" id = "chatRequest">
+	    <div class="mdl-dialog__content">
+	    	<h5> Available people </h5>
+		    <div class="mdl-textfield mdl-js-textfield">
+		    	<p id=requestFrom></p>
+		    	<input class="mdl-textfield__input" type="text" id="requestfromid" style="display:none;">
+			</div>
+			<div>
+		    	<button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id=Yes style="width : 100%">Yes</button>
+		    </div>
+		    <br>
+		    <div>
+		    	<button type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id=No style="width : 100%">No</button>
+		    </div>
+	    </div>
+	</dialog>
+
+	<h4 id=welcome> Welcome Komal <h4>
+
+	<form action="#">
+	  	<div class="mdl-textfield mdl-js-textfield" style="width : 90%; margin : 10px">
+		    <input class="mdl-textfield__input" type="text" id="message" placeholder="Type here">
+	 	</div>
+		<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" id = "msgBtn" style="margin : 10px ">
+			<i class="material-icons">send</i>
+		</button>
+	</form>
+
+	<div id = people-in-chat >
+	</div>
+
+	<div class="wide-card mdl-card mdl-shadow--2dp" id= chat>
+        <div class="mdl-card__supporting-text"  >
+           Hi
+        </div>
+    </div>
+
+<script src="/javascripts/chatapplication.js"></script>
+</body>
+</html>

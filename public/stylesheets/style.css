@@ -1,0 +1,20 @@
+
+html, body {
+	height: 100%;
+}
+#join, #msgbtn {
+
+	background-color: red;
+	color: white;
+}
+.form-group, form{
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+    width: 100%;
+}
+
+#text {
+	background-color: #D3D3D3;
+	padding: 2px;
+}

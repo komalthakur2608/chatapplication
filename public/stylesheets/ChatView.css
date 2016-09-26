@@ -1,0 +1,18 @@
+
+.wide-card {
+	width : 100%;
+  min-height: 0px;
+  margin-left: 10px;
+}
+
+#people-in-chat{
+
+	margin: 10px;
+}
+
+#welcome {
+	margin-left: 10px;
+	margin-top: 10px;
+	margin-bottom: 0;
+	padding: 0px;
+}
