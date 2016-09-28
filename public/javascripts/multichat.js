@@ -1,6 +1,6 @@
 $(document).ready(function(){ 
 
-	var socket = io.connect("localhost:3000");
+	var socket = io.connect("localhost:3001");
 	$('#myModal').modal('show');
 	$('form').submit(function (evt) {
             evt.preventDefault();
@@ -9,12 +9,11 @@ $(document).ready(function(){
 
     $(document).on('click', '#join', function() { 
     	console.log("join button clicked");
-    	socket.emit('join', $('#name').val());
-    	$('#myModal').modal('hide');
+    	socket.emit('join', $('#name').val(), $('#password').val());
     })
 
     socket.on('welcome' , function(msg) {
-
+            $('#myModal').modal('hide');
             $("#welcome").text(msg);
         })
 
@@ -114,15 +113,43 @@ $(document).ready(function(){
 
     })
 
-    socket.on('disconnected', function(){
-    	alert("server is disconnected");
+    socket.on('disconnected', function(id){
+    	alert("server is disconnected + " + id);
+        if(document.getElementById('id').length > 0) {
+            alert(exists);
+            document.getElementById('id').remove();
+        }
+        
    	})
 
     socket.on('fileDownload', function(name, ids, sender){
         var id = ids.replace('file', '');
 
-        $('#'+id).find('ul').append('<li>' + sender + ' : '+ '<a href ='+ name+ '><img src = "images/download.png" width = "50px" alt = "download image" /></a></li>');
-        
-        
+        $('#'+id).find('ul').append('<li>' + sender + ' : '+ '<a href ='+ name+ '><img src = "images/download.png" width = "50px" alt = "download image" /></a></li>');    
     })
+
+    socket.on('invalidlogin', function(){
+        $('#invalid').text('invalid username or password');
+        $('#name').val("");
+        $('password').val("");
+    })
+
+    $(document).on('click', '#signup', function() { 
+        $('#myModal').modal('hide');
+        $('#signupModal').modal('show');
+    })
+
+    $(document).on('click', '#signupbtn', function() { 
+        socket.emit('signup', $('#signupname').val(), $('#signuppassword').val());
+    })
+
+    socket.on('signupSuccess', function(){
+        $('#myModal').modal('show');
+        $('#signupModal').modal('hide');
+    })
+
+    socket.on('signupFail', function(){
+        $('#failsignup').text('Username already exists');
+    })
+
 });

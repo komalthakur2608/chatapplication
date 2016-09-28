@@ -8,13 +8,15 @@ var io = require('socket.io');
 var mongoose = require('mongoose');
 var ss = require('socket.io-stream');
 var fs = require('fs');
-var PersonChat = require('./models/PersonChatModel')
+var JwtStrategy = require('passport-jwt').Strategy;
+var ExtractJwt = require('passport-jwt').ExtractJwt;
+var passport = require('passport');
 
-//var userRegister = require('./models/RegisterModel')
+var PersonChat = require('./models/PersonChatModel')
+var userRegister = require('./models/RegisterModel')
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-
 var app = express();
 var people = {}; 
 var socketsArr = {}; 
@@ -75,57 +77,61 @@ db.once('open', function() {
   console.log("holla we are connected!!!!!")
 });
 
-var socket = io.listen(app.listen(3000));
+//setting opts and strategy for passport-jwt
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+opts.secretOrKey = 'komal';
 
-/*socket.on('connection', function(client) {
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+    userRegister.findOne({name: jwt_payload.name}, function(err, user) {
+        if (err) {
+            return done(err, false);
+        }
+        if (user) {
+            done(null, user);
+        } else {
+            done(null, false);
+        }
+    });
+}));
 
-  client.on('join', function(name, pass, phone, email) {
-    people[client.id] = name;
-    socketsArr[client.id] = client;
-
-    var temp = new userRegister({name : name, password : pass, phone : phone, email : email});
-    temp.save(function(err, temp){
-      if (err) return console.error(err);
-    })
-    client.emit("welcome", "Welcome to My chat " + name);
-    client.emit("available_people", people)
-  }) 
-
-  client.on('send' , function(msg) {
-    socketsArr[people_in_chat[0]].emit('chat', people[client.id], msg);
-    socketsArr[people_in_chat[1]].emit('chat', people[client.id], msg);
-  })
-
-  client.on('disconnect', function(){
-    delete people[client.id];
-  });
-
-  client.on('send_request', function(clientid){
-    console.log(socketsArr);
-    socketsArr[clientid].emit('client1_request', people[client.id] , client.id);
-  })
-
-  client.on('request_accepted', function(id){
-    console.log(client.id +" "+id )
-    people_in_chat = [];
-    people_in_chat.push(client.id);
-    people_in_chat.push(id);
-    client.emit('start-chat', people[client.id], people[id]);
-    socketsArr[id].emit('start-chat', people[client.id], people[id]);
-  })
-
-})*/
-
+var socket = io.listen(app.listen(3001));
 
 socket.on('connection', function(client) {
 
-  client.on('join', function(username) {
-    people[client.id] = username;
-    socketsArr[client.id] = client;
-    console.log("join event");
-    client.emit("welcome", "Welcome to My chat " + username);
-    socket.emit("available_people", people)
+  client.on('join', function(username, password) {
+
+    userRegister.findOne({'name' : username, 'password' : password}, function(err, doc){
+      if(doc != null) {
+        people[client.id] = username;
+        socketsArr[client.id] = client;
+        console.log("join event");
+        client.emit("welcome", "Welcome to My chat " + username);
+        socket.emit("available_people", people);
+      }
+      else {
+        client.emit('invalidlogin');
+      }
+    })
   }) 
+
+  client.on('signup', function(username, password){
+
+    userRegister.findOne({'name' : username}, function(err, doc){
+      if(doc != null) {
+        client.emit('signupFail');
+       
+      }
+      else {
+        var temp = new userRegister({'name' : username, 'password' : password});
+        temp.save(function(err, temp){
+            if (err) return console.error(err);
+        })
+
+        client.emit('signupSuccess');
+      }
+    })
+  })
 
   client.on('send' , function(ids,msg) {
     var clients = ids.split('-');
@@ -187,7 +193,7 @@ socket.on('connection', function(client) {
 
   })
   client.on('disconnect', function(){
-    client.emit('disconnected');
+    socket.emit('disconnected', client.id);
   });
 
   client.on('send_request', function(clientid){
@@ -219,9 +225,6 @@ socket.on('connection', function(client) {
       socketsArr[id].emit('start-chat', people[client.id], people[id], chat_history);
     }
   })
-
-    
-
   })
 
 })

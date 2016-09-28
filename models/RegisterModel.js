@@ -3,9 +3,7 @@ var Schema = mongoose.Schema;
 
 var userSchema = mongoose.Schema({
     name: String,
-    password: String,
-    phone: String,
-    email:String
+    password: String
 });
 
 var userRegister = mongoose.model('User', userSchema);
