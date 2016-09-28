@@ -22,7 +22,8 @@ var people_in_chat = [];
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
-app.use("/public", express.static(__dirname + "/public"));
+
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -168,10 +169,22 @@ socket.on('connection', function(client) {
     }
   })
 
-  ss(client).on('uploadFile', function(stream, data){
-    var filename = path.basename(data.name);
+  ss(client).on('uploadFile', function(stream, data, ids){
+    var splitArr = ids.split('-');
+    var id = splitArr[1].replace('file', '');
+    var reciever;
+    var filename = 'uploads/'+data.name;
     stream.pipe(fs.createWriteStream(filename));
-    
+
+    var keys = Object.keys(people);
+    for(var i = 0; i<keys.length; i++){
+      if(people[keys[i]] == id){
+        reciever = keys[i];
+      }
+    }
+    console.log('reciever : ' + reciever + 'name : ' + id);
+    socketsArr[reciever].emit('fileDownload',filename,ids, people[client.id]);
+
   })
   client.on('disconnect', function(){
     client.emit('disconnected');

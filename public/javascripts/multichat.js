@@ -74,16 +74,22 @@ $(document).ready(function(){
         $('#progressModal').modal('show');
 
         var file = e.target.files[0];
+        var ext = file.name.split('.')[1];
         var stream = ss.createStream();
  
         // upload a file to the server. 
-        ss(socket).emit('uploadFile', stream, {name: 'download.jpg'});
         var blobStream = ss.createBlobReadStream(file);
         var size = 0;
+        ss(socket).emit('uploadFile', stream, {name: this.id+Date.now()+'.'+ext}, this.id);
         blobStream.on('data', function(chunk) {
-          size += chunk.length;
-          $('#progress').append('<p>' + Math.floor(size / file.size * 100) + '%' + '</p>');
-          // -> e.g. '42%' 
+            size += chunk.length;
+            var percentComplete = Math.floor(size / file.size * 100) + '%';
+            $('.progress-bar').width(percentComplete);
+            $('#progress').text(percentComplete + " complete");
+            if(percentComplete == '100%') {
+               setTimeout(function(){}, 3000);
+                $('#progressModal').modal('hide');
+            }
         });
          
         blobStream.pipe(stream);
@@ -111,4 +117,12 @@ $(document).ready(function(){
     socket.on('disconnected', function(){
     	alert("server is disconnected");
    	})
+
+    socket.on('fileDownload', function(name, ids, sender){
+        var id = ids.replace('file', '');
+
+        $('#'+id).find('ul').append('<li>' + sender + ' : '+ '<a href ='+ name+ '><img src = "images/download.png" width = "50px" alt = "download image" /></a></li>');
+        
+        
+    })
 });
