@@ -6,10 +6,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var io = require('socket.io');
 var mongoose = require('mongoose');
-
+var ss = require('socket.io-stream');
+var fs = require('fs');
 var PersonChat = require('./models/PersonChatModel')
 
-var userRegister = require('./models/RegisterModel')
+//var userRegister = require('./models/RegisterModel')
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -17,6 +18,7 @@ var users = require('./routes/users');
 var app = express();
 var people = {}; 
 var socketsArr = {}; 
+var people_in_chat = [];
 
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
@@ -65,7 +67,7 @@ app.use(function(err, req, res, next) {
 });
 
 //mongoose connect
-mongoose.connect('mongodb://localhost/chatappdb');
+mongoose.connect('mongodb://localhost/mychatapp');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -74,7 +76,7 @@ db.once('open', function() {
 
 var socket = io.listen(app.listen(3000));
 
-socket.on('connection', function(client) {
+/*socket.on('connection', function(client) {
 
   client.on('join', function(name, pass, phone, email) {
     people[client.id] = name;
@@ -89,14 +91,12 @@ socket.on('connection', function(client) {
   }) 
 
   client.on('send' , function(msg) {
-    console.log("before chat evennt");
-    socket.sockets.emit('chat', people[client.id], msg);
-    ("after chat evennt");
+    socketsArr[people_in_chat[0]].emit('chat', people[client.id], msg);
+    socketsArr[people_in_chat[1]].emit('chat', people[client.id], msg);
   })
 
   client.on('disconnect', function(){
     delete people[client.id];
-    socket.sockets.emit('people-in-chat', people);
   });
 
   client.on('send_request', function(clientid){
@@ -106,8 +106,109 @@ socket.on('connection', function(client) {
 
   client.on('request_accepted', function(id){
     console.log(client.id +" "+id )
+    people_in_chat = [];
+    people_in_chat.push(client.id);
+    people_in_chat.push(id);
     client.emit('start-chat', people[client.id], people[id]);
     socketsArr[id].emit('start-chat', people[client.id], people[id]);
+  })
+
+})*/
+
+
+socket.on('connection', function(client) {
+
+  client.on('join', function(username) {
+    people[client.id] = username;
+    socketsArr[client.id] = client;
+    console.log("join event");
+    client.emit("welcome", "Welcome to My chat " + username);
+    socket.emit("available_people", people)
+  }) 
+
+  client.on('send' , function(ids,msg) {
+    var clients = ids.split('-');
+    clients.sort(function(a, b) {
+      return a > b;
+    });
+
+    if(PersonChat.findOne({ 'uniqueid' : clients[0]+clients[1]}, function(err, doc){
+      if(doc != null) {
+        doc.chat.push({'sender' : people[client.id], 'message' : msg});
+        doc.save(function(){
+          console.log("message saved")
+        })
+      }
+      
+      else {
+
+        var temp = new PersonChat({'user1' : clients[0] , 
+          'user2' : clients[1], 
+          'uniqueid' : clients[0]+clients[1],
+          'chat' : [{'sender' : people[client.id], 'message' : msg}]
+        });
+
+        temp.save(function(err, temp){
+          if (err) return console.error(err);
+        })
+      }
+
+    }))
+
+    console.log("clients"+ clients);
+    var keys = Object.keys(people);
+    for(var i =0 ; i<keys.length; i++){
+      for(var j = 0; j<clients.length; j++){
+        if(clients[j] == people[keys[i]]){
+          console.log(clients[j]);
+          socketsArr[keys[i]].emit('chat', msg, ids, people[client.id]);
+        }
+      }
+
+    }
+  })
+
+  ss(client).on('uploadFile', function(stream, data){
+    var filename = path.basename(data.name);
+    stream.pipe(fs.createWriteStream(filename));
+    
+  })
+  client.on('disconnect', function(){
+    client.emit('disconnected');
+  });
+
+  client.on('send_request', function(clientid){
+    socketsArr[clientid].emit('client1_request', people[client.id] , client.id);
+  })
+
+  client.on('request_accepted', function(id){
+    var uniqueid = "";
+    var chat_history = [];
+    if(people[client.id]< people[id]) {
+       uniqueid = people[client.id]+people[id];
+       console.log("unique "  +uniqueid)
+    }
+    else {
+      uniqueid = people[id]+people[client.id];
+      console.log("unique "  +uniqueid)
+    }
+
+    PersonChat.findOne({ 'uniqueid' : uniqueid}, function(err, doc){
+    if(doc != null) {
+      console.log(JSON.stringify(doc['chat']));
+      socketsArr[id].emit('accept_handshake', people[client.id]);
+      client.emit('start-chat', people[client.id], people[id], doc['chat']);
+      socketsArr[id].emit('start-chat', people[client.id], people[id], doc['chat']);
+    }
+    else {
+      socketsArr[id].emit('accept_handshake', people[client.id]);
+      client.emit('start-chat', people[client.id], people[id], chat_history);
+      socketsArr[id].emit('start-chat', people[client.id], people[id], chat_history);
+    }
+  })
+
+    
+
   })
 
 })

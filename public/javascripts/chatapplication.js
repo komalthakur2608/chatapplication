@@ -31,6 +31,7 @@ $(document).ready(function(){
             if(msg != "") {
                 socket.emit('send', msg);
                 $('#message').val("");
+                $('#chat').append ('<div class="mdl-card__supporting-text">'+ person + " : " + msg + '</div>');
             }
 
         })
@@ -61,7 +62,6 @@ $(document).ready(function(){
         $('#onlineList').on('click', 'li', function(){
             onlineDialog.close();
             socket.emit('send_request', this.id);
-
         })
 
         socket.on('client1_request', function(name, id){
@@ -69,7 +69,6 @@ $(document).ready(function(){
             requestDialog.showModal();
             $('#requestFrom').text("Chat request from "+name+'. Accept?');
             $('#requestfromid').val(id);
-
         })
 
         requestDialog.querySelector('#Yes').addEventListener('click', function() {
